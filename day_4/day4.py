@@ -4,21 +4,22 @@ import click
 
 class Board:
 
-    def __init__(self, grid):
+    def __init__(self, grid, size=5):
         self.grid = grid
-        self.matches = np.zeros((5,5)).astype(int)
+        self.size = size
+        self.matches = np.zeros((size, size)).astype(int)
+        self.has_bingo = False
 
     def mark_number(self, number: int):
-        for i, row in enumerate(self.grid):
-            for j, num in enumerate(row):
-                if number == num:
-                    self.matches[i, j] = 1
-                    break
+        found = np.array((self.grid == number).astype(int))
+        self.matches = self.matches + found
+        self.check_bingo()
         
-        return self.has_bingo()
-
-    def has_bingo(self):
-        return self.check_rows() or self.check_rows(direction='v')
+    def check_bingo(self):
+        self.has_bingo = self.check_rows() or self.check_rows(direction='v')
+    
+    def reset(self):
+        self.matches =np.zeros((self.size, self.size)).astype(int)
 
     def score(self):
         m = self.matches
@@ -46,15 +47,28 @@ class Board:
     def print_board(self):
         print(self.__str__(self.grid))
 
-def check_number(number, boards):
-    for board in boards:
-        winner = board.mark_number(number)
-        if winner:
-            print('Winner!')
-            print(board)
-            print(f'Score: {board.score()}, Number: {number}')
-            print(f'Solution: {board.score()*number}')
-            return True
+
+def all_boards_win(boards):
+    return all(board.has_bingo for board in boards)
+
+
+def find_first_winner(numbers, boards):
+    for number in numbers:
+        for board in boards:
+            board.mark_number(number)
+            if board.has_bingo:
+                return number, board
+    return False, []
+
+def find_last_winner(numbers, boards):
+    for number in numbers:
+        for board in boards:
+            board.mark_number(number)
+            if all_boards_win(boards):
+                # this board is the last winner
+                return number, board
+    return False, []
+
 
 @click.command()
 @click.option('--example', is_flag=True, help='Run example input')
@@ -69,7 +83,6 @@ def run(example):
 
     with open(filename, 'r') as infile:
         draw_order = list(map(int, infile.readline().strip().split(",")))
-        click.echo(draw_order)
         boards = []
         while True:
             raw_grid = list(islice(infile, 6))
@@ -80,11 +93,21 @@ def run(example):
             grid = np.array(numbers).astype(int)
             boards.append(Board(grid))
 
-        for number in draw_order:
-            winner = check_number(number, boards)
-            if winner:
-                break
-                
+        number, board = find_first_winner(draw_order, boards)
+        print('Found first winner!')
+        print(board)
+        print(f'Score: {board.score()}, Number: {number}')
+        print(f'Solution: {board.score()*number}')
+
+        for board in boards:
+            board.reset()
+        
+        number, board = find_last_winner(draw_order, boards)
+        print('Found last winner!')
+        print(board)
+        print(f'Score: {board.score()}, Number: {number}')
+        print(f'Solution: {board.score()*number}')
+
         print('Done')
 
 
