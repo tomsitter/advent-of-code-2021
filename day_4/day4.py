@@ -23,7 +23,7 @@ class Board:
 
     def score(self):
         m = self.matches
-        return (self.grid * np.where((m==0)|(m==1), m^1, m)).sum()
+        return (self.grid * np.where(m==1, 0, 1)).sum()
 
     def check_rows(self, direction='h'):
         if direction == 'v':
