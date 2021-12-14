@@ -45,13 +45,9 @@ def run(example, days):
         school = School(fish)
         
         for _ in range(days):
-            # print(','.join(str(fish) for fish in school))
             school.step()
-            #print(school)
 
         print(len(school))  
-
-
 
 
 if __name__ == '__main__':
