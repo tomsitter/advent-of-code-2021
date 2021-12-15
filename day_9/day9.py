@@ -1,6 +1,5 @@
 import click
 import numpy as np
-from itertools import chain
 
 def adjacent(pos, data):
     """Returns a list of adjacent values from the data matrix for the given position"""
