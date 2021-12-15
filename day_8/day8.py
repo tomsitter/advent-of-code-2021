@@ -40,7 +40,7 @@ def run(example):
             # Part 2
             # invert code to get a decode matrix
             decode = {v: str(k) for k, v in code.items()}
-            # decode values, append to one number and convert to int, add to the running total
+            # decode values, join into one number and convert to int, add to the running total
             total += int(''.join(decode[entry] for entry in output_values))
 
         print(f'Solution 1: {count_1478}')
