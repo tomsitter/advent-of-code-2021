@@ -11,6 +11,7 @@ def adjacent(pos, data):
             yield (adj_x, adj_y)
 
 def find_basin(pos, data):
+    """Similar to adjacent but yields starting point, and is recursive if adjacent point is > current point but < 9"""
     x,y = pos
     yield (x,y)
     x_size, y_size = data.shape
@@ -37,24 +38,24 @@ def run(example):
         data = []
         for row in infile:
             data.append([num for num in row.strip()])
-
         data = np.array(data, dtype='int')
-        low_points = []
-        basins = []
-        for x, row in enumerate(data):
-            for y, point in enumerate(row):
-                if all(point < data[adj_x, adj_y] for (adj_x, adj_y) in adjacent((x, y), data)):
-                    low_points.append(point)
-                basins.append(list(find_basin((x,y), data)))
 
-        risk_levels = [1+point for point in low_points]
-        print(f'Solution 1: {sum(risk_levels)}')
+    low_points = []
+    basins = []
+    for x, row in enumerate(data):
+        for y, point in enumerate(row):
+            if all(point < data[adj_x, adj_y] for (adj_x, adj_y) in adjacent((x, y), data)):
+                low_points.append(point)
+            basins.append(list(find_basin((x,y), data)))
 
-        top_3 = sorted([set(b) for b in basins], key=len, reverse=True)[0:3]
-        product = np.prod([len(t) for t in top_3])
-        print(f'Solution 2: {product}')
+    # Part 1
+    risk_levels = [1+point for point in low_points]
+    print(f'Solution 1: {sum(risk_levels)}')
 
-        
+    # Part 2
+    top_3 = sorted([set(b) for b in basins], key=len, reverse=True)[0:3]
+    product = np.prod([len(t) for t in top_3])
+    print(f'Solution 2: {product}')
 
 if __name__ == '__main__':
     run()
