@@ -11,7 +11,6 @@ def run(example):
         filename = 'input.txt'
         click.echo(f'Using full dataset: {filename}')
 
-    code = { x: {} for x in range(10)}
     count_1478 = 0
     total = 0
 
@@ -21,6 +20,7 @@ def run(example):
             signal_patterns = [frozenset(s) for s in signal_patterns.split()]
             output_values = [frozenset(s) for s in output_values.split()]
 
+            code = {}
             code[1] = [s for s in signal_patterns if len(s)==2][0]
             code[4] = [s for s in signal_patterns if len(s)==4][0]
             code[6] = [s for s in signal_patterns if len(s)==6 and not code[1] < s][0]
