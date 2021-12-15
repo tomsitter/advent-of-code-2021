@@ -15,11 +15,12 @@ def cost(positions, pivot, scale=False):
 @click.option('--scale', is_flag=True, help='Run with scaling of steps (part 2)')
 def run(example, scale):
     # Loads the data and runs the main algorithm
-    click.echo(f'example: {example}')
     if example:
         filename = 'example_input.txt'
+        click.echo(f'Using example dataset: {filename}')
     else:
         filename = 'input.txt'
+        click.echo(f'Using full dataset: {filename}')
 
     with open(filename, 'r') as infile:
         best_loss = float('inf')
