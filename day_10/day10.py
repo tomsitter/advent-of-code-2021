@@ -1,7 +1,6 @@
 import click
 import numpy as np
 
-   
 @click.command()
 @click.option('--example', is_flag=True, help='Run example input')
 def run(example):
