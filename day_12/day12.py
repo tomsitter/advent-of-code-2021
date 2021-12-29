@@ -1,52 +1,52 @@
 import click
-import numpy as np
+from collections import defaultdict
 
 
 class Maze:
-    caves = {}
+    caves = defaultdict(list)
 
     def __init__(self):
         pass
 
     def add_path(self, path):
-        cave_name, path = path.split('-')
-        if cave_name in self.caves.keys():
-            self.caves[cave_name].add_path(path)
-        else:
-            cave = Cave(cave_name)
-            cave.add_path(path)
-            self.caves[cave_name] = cave
+        start, end = path.split('-')
+        self.caves[start].append(end)
+        self.caves[end].append(start)
 
+    def find_all_paths(self,
+                       start: str = 'start',
+                       end: str = 'end',
+                       path: list = None,
+                       can_revisit_small_cave: bool = False):
+        if path is None:
+            path = []
 
-class Cave:
-    name = ''
-    start = False
-    end = False
-    paths = []
+        path = path + [start]
+        if start == end:
+            return [path]
 
-    def __init__(self, name):
-        self.name = name
-        if name == 'start':
-            self.start = True
-        if name == 'end':
-            self.end = True
-        if name.isupper():
-            self.size = 'large'
-        else:
-            self.size = 'small'
+        if start not in self.caves:
+            return []
 
-    def add_path(self, name):
-        self.paths.append(name)
+        # print(f'Path is {path} and can revisit is {can_revisit_small_cave}')
+        paths = []
+        for node in self.caves[start]:
+            can_visit = True
+            can_revisit_small_cave_after_node = can_revisit_small_cave
+            if node.islower() and node in path:
+                if node in ('start', 'end'):
+                    can_visit = False
+                elif not can_revisit_small_cave:
+                    can_visit = False
+                else:
+                    can_revisit_small_cave_after_node = False
+                    can_visit = True
 
-    def __str__(self):
-        path_strings = ' '.join([p for p in self.paths])
-        if self.start:
-            return f"Start: {self.name}-{path_strings}"
-        elif self.end:
-            return f"{path_strings}-{self.name}: End"
-        else:
-            return f"{self.name}-{path_strings}"
-
+            if can_visit:
+                new_paths = self.find_all_paths(node, end, path, can_revisit_small_cave=can_revisit_small_cave_after_node)
+                for new_path in new_paths:
+                    paths.append(new_path)
+        return paths
 
 
 @click.command()
@@ -63,9 +63,15 @@ def run(example):
     with open(filename, 'r') as infile:
         maze = Maze()
         for row in infile:
-            maze.add_path(row)
+            maze.add_path(row.strip())
 
-    print(maze.caves['start'])
+    # print(maze.caves)
+    paths = maze.find_all_paths(can_revisit_small_cave=False)
+    print(f'Found {len(paths)} paths')
+
+    paths_pt2 = maze.find_all_paths(can_revisit_small_cave=True)
+    print(f'Found {len(paths_pt2)} paths with one small cave revisit')
+    # for p in sorted(paths_pt2): print(','.join(p))
 
 
 if __name__ == '__main__':
